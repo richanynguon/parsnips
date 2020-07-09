@@ -27,6 +27,7 @@ Thanks for using parsnips for yo snippets
 
 Initial release of basic functionality where a user can can click on a function to see where its being called
 
-
+![GitHub Logo](/images/logo.png)
+Format: ![Alt Text](url)
 
 -----------------------------------------------------------------------------------------------------------
