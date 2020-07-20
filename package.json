@@ -28,18 +28,19 @@
 		"test": "node ./test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.1",
-		"@types/node": "^12.11.7",
-		"@types/vscode": "^1.43.0",
-		"eslint": "^6.8.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.0",
+		"@types/node": "^14.0.23",
+		"@types/vscode": "^1.47.0",
+		"eslint": "^7.5.0",
 		"glob": "^7.1.6",
-		"mocha": "^7.0.1",
-		"typescript": "^3.7.5",
-		"vscode-test": "^1.3.0"
+		"mocha": "^8.0.1",
+		"typescript": "^3.9.7",
+		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
-		"acorn": "^7.1.1",
+		"acorn": "^7.3.1",
+		"acorn-loose": "^7.1.0",
 		"file-system": "^2.2.2",
 		"vscode-languageclient": "^6.1.3"
 	}

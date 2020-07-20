@@ -1,11 +1,5 @@
-const acorn = require("acorn");
+const acorn = require("acorn-loose");
 const fs = require("fs");
-
-const thisFile = "./test";
-const data = fs.readFileSync(`${thisFile}.js`, "utf8");
-
-const nodes = acorn.parse(data);
-
 class Node {
 	constructor(type, start, end, filePath, name = undefined) {
 		this.type = type;
@@ -192,13 +186,35 @@ function createASTNodeGraph(
 			createASTNodeGraph(obj.body, ...recurviseParams);
 			break;
 		default:
-			console.log(`${type} has not been handled yet`);
+			break;
+		// console.log(`${type} has not been handled yet`);
 	}
 }
 
-const newGraph = new Graph();
-createASTNodeGraph(nodes, newGraph, thisFile);
-newGraph.connectFileGraphs();
-for (let node in newGraph.parentsFuncRelations) {
-	console.log(node, newGraph.parentsFuncRelations[node]);
+function returnFunctionParents(document, position) {
+	const docData = fs.readFileSync(`${document.fileName}`, "utf8");
+	const docNodes = acorn.parse(docData);
+	const newGraph = new Graph();
+	createASTNodeGraph(docNodes, newGraph, document.fileName);
+	newGraph.connectFileGraphs();
+	let found;
+	const results = [];
+	for (let node in newGraph.vertices) {
+		const strArr = node.split("-");
+		// position is an object line: int, character: int
+		let numPos = parseInt(position)
+		let start =  parseInt(strArr[0]);
+		let end =  parseInt(strArr[1]);
+		console.log(position, numPos, start , end)
+		if (numPos >= start && numPos <= end) {
+			found = node;
+		}
+	}
+	for (let entry in newGraph.parentsFuncRelations[found]) {
+		results.append(newGraph.vertices[entry].name);
+	}
+	// console.log(newGraph.vertices[found].name)
+	return results;
 }
+
+module.exports = { returnFunctionParents };
