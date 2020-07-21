@@ -191,29 +191,45 @@ function createASTNodeGraph(
 	}
 }
 
+function calcCharCount(dataStr, position) {
+	const dataArray = dataStr.split("\n");
+	const trimmedData = dataArray.map((array) => {
+		return array.replace(/\s+/g, "");
+	});
+	let i = 0;
+	let count = 0;
+	while (i < position.line) {
+		count = count + trimmedData[i].length;
+		i = i + 1;
+	}
+	count = count + position.character;
+	return count;
+}
+
 function returnFunctionParents(document, position) {
-	const docData = fs.readFileSync(`${document.fileName}`, "utf8");
-	const docNodes = acorn.parse(docData);
+	const data = fs.readFileSync(`${document.fileName}`, "utf8");
+	const charPos = calcCharCount(data, position);
+	const nodes = acorn.parse(data);
 	const newGraph = new Graph();
-	createASTNodeGraph(docNodes, newGraph, document.fileName);
+	createASTNodeGraph(nodes, newGraph, document.fileName);
 	newGraph.connectFileGraphs();
 	let found;
 	const results = [];
 	for (let node in newGraph.vertices) {
 		const strArr = node.split("-");
-		// position is an object line: int, character: int
-		let numPos = parseInt(position)
-		let start =  parseInt(strArr[0]);
-		let end =  parseInt(strArr[1]);
-		console.log(position, numPos, start , end)
+		let numPos = parseInt(charPos);
+		let start = parseInt(strArr[0]);
+		let end = parseInt(strArr[1]);
 		if (numPos >= start && numPos <= end) {
 			found = node;
 		}
 	}
-	for (let entry in newGraph.parentsFuncRelations[found]) {
-		results.append(newGraph.vertices[entry].name);
+
+	for (let entry of newGraph.parentsFuncRelations[found]) {
+		console.log(newGraph.vertices[entry]);
+		results.push(newGraph.vertices[entry].value.name);
 	}
-	// console.log(newGraph.vertices[found].name)
+
 	return results;
 }
 
