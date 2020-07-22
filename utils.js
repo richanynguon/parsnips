@@ -1,5 +1,6 @@
 const acorn = require("acorn-loose");
 const fs = require("fs");
+
 class Node {
 	constructor(type, start, end, filePath, name = undefined) {
 		this.type = type;
@@ -32,7 +33,7 @@ class Graph {
 		this.vertices[v2].parents.add(v1);
 	}
 	// v1 will always be the parent and v2 is child
-	generateGraph(v1, value, v2 = undefined, value2 = undefined) {
+	addCxn(v1, value, v2 = undefined, value2 = undefined) {
 		if (!(v1 in this.vertices)) {
 			this.addVertex(v1, value);
 		}
@@ -54,7 +55,9 @@ class Graph {
 							const parentValue = this.fileFunctions[file].functions[
 								innerValue
 							];
-							this.parentsFuncRelations[childValue].add(parentValue);
+							if (childValue != parentValue) {
+								this.parentsFuncRelations[childValue].add(parentValue);
+							}
 						}
 					});
 				});
@@ -76,10 +79,12 @@ function createASTNodeGraph(
 	parentValue = undefined,
 	primaryFile = fileName
 ) {
+	// create vertex id
 	const { type, start, end } = obj;
 	const nodeInfo = [type, start, end, fileName];
 	let node = new Node(...nodeInfo);
 	const vertexId = `${node.start}-${node.end}-${fileName}`;
+	// Flagging primary file will prevent cyclic travel
 	if (!(fileName in graph.fileFunctions)) {
 		graph.fileFunctions[fileName] = {
 			primary: false,
@@ -90,6 +95,8 @@ function createASTNodeGraph(
 			graph.primaryFile = fileName;
 		}
 	}
+	// Based on type of syntax create reassign new node and add vertex info
+	// to file function map for multi file ast connection
 	switch (type) {
 		case "FunctionDeclaration":
 			if (obj.id) {
@@ -99,7 +106,10 @@ function createASTNodeGraph(
 			break;
 		case "CallExpression":
 			node = new Node(...nodeInfo, obj.callee.name);
-			graph.fileFunctions[fileName].functions[obj.callee.name] = vertexId;
+			if (obj.callee.name) {
+				graph.fileFunctions[fileName].functions[obj.callee.name] = vertexId;
+			}
+
 			break;
 		case "VariableDeclarator":
 			node = new Node(...nodeInfo, obj.id.name);
@@ -110,8 +120,9 @@ function createASTNodeGraph(
 			}
 	}
 	if (parent) {
-		graph.generateGraph(parent, parentValue, vertexId, node);
-		// create parent function relations
+		graph.addCxn(parent, parentValue, vertexId, node);
+		// create parent function relations, if first round of neighbors is not
+		// the parent of type, then continue to traverse backward to find parent of type
 		if (parentValue.type == "FunctionDeclaration") {
 			graph.parentsFuncRelations[vertexId].add(parent);
 		} else if (parentValue.type == "VariableDeclarator") {
@@ -124,9 +135,8 @@ function createASTNodeGraph(
 				graph.parentsFuncRelations[vertexId].add(entry);
 			});
 		}
-		// add edges
 	} else {
-		graph.generateGraph(vertexId, node);
+		graph.addCxn(vertexId, node);
 	}
 
 	const recurviseParams = [graph, fileName, vertexId, node, primaryFile];
@@ -207,14 +217,17 @@ function calcCharCount(dataStr, position) {
 }
 
 function returnFunctionParents(document, position) {
-	const data = fs.readFileSync(`${document.fileName}`, "utf8");
+	// Generates graph from information
+	const data = fs.readFileSync(`${document.fileName}.js`, "utf8");
 	const charPos = calcCharCount(data, position);
 	const nodes = acorn.parse(data);
 	const newGraph = new Graph();
+	// create and connect graph
 	createASTNodeGraph(nodes, newGraph, document.fileName);
 	newGraph.connectFileGraphs();
 	let found;
 	const results = [];
+	// look through all the vertices to find char
 	for (let node in newGraph.vertices) {
 		const strArr = node.split("-");
 		let numPos = parseInt(charPos);
@@ -226,11 +239,24 @@ function returnFunctionParents(document, position) {
 	}
 
 	for (let entry of newGraph.parentsFuncRelations[found]) {
-		console.log(newGraph.vertices[entry]);
-		results.push(newGraph.vertices[entry].value.name);
+		if (
+			newGraph.vertices[entry].value.type === "VariableDeclarator" ||
+			newGraph.vertices[entry].value.type === "FunctionDeclaration"
+		) {
+			results.unshift(newGraph.vertices[entry].value.name);
+		} else {
+			results.push(newGraph.vertices[entry].value.name);
+		}
 	}
-
 	return results;
 }
 
 module.exports = { returnFunctionParents };
+
+/*
+
+// Start creating graph at index.js on start
+// Everytime it updated 
+// detect strong connected components
+
+*/
