@@ -1,5 +1,4 @@
 const vscode = require("vscode");
-const { returnFunctionParents } = require("./utils");
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -7,19 +6,15 @@ const { returnFunctionParents } = require("./utils");
 function activate(context) {
 	console.log('Congratulations, your extension "parsnips" is now active!');
 
-	vscode.languages.registerHoverProvider("javascript", {
-		provideHover(document, position, token) {
-			
-			const results = returnFunctionParents(document, position);
-
-			return {
-				contents: results,
-			};
-		},
-	});
-
+	// TODO:
+	// Search documentation to figure out of to utilize side bar
+	// How to plug in References and Definitions of Functions
+	// How to get compiled styles on this.
+	// Show connected state
+	// What if you have two definitions - show both definitions
+ 
 	const hell0 = vscode.window.showInformationMessage(
-		"Hey welcome back sempai 🙇🏻 you can do it"
+		"Welcome back Hokage 🙇🏻 you're going to crush it"
 	);
 	context.subscriptions.push(hell0);
 }

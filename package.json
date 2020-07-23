@@ -15,6 +15,39 @@
 	],
 	"main": "./extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "parsnips",
+					"title": "Parsnips",
+					"icon": "parsnips.svg"
+				}
+			]
+		},
+		"views": {
+			"parsnips": [
+				{
+					"id": "definitions",
+					"name": "Function Definitions"
+				},
+				{
+					"id": "params",
+					"name": "Param Types"
+				},
+				{
+					"id": "state",
+					"name": "Connected State"
+				},
+				{
+					"id": "css",
+					"name": "CSS Hierarchy"
+				},
+				{
+					"id": "references",
+					"name": "Function Reference"
+				}
+			]
+		},
 		"commands": [
 			{
 				"command": "extension.helloWorld",
