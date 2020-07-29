@@ -1,10 +1,15 @@
 {
-	"name": "parsnips",
-	"displayName": "parsnips",
-	"description": "parses to analyze le code of your base",
+	"name": "parsnip",
+	"displayName": "parsnip",
+	"description": "A way to inspect your components and functions in React.",
 	"version": "0.0.1",
+	"author": {
+		"name": "Richany Nguon",
+		"email": "alina.nguon@gmail.com"
+	},
+	"publisher": "richanynguon",
 	"engines": {
-		"vscode": "^1.43.0"
+		"vscode": "^1.47.0"
 	},
 	"categories": [
 		"Other"
@@ -15,28 +20,24 @@
 	],
 	"main": "./extension.js",
 	"contributes": {
+		"configuration": {
+			"title": "parsnips"
+		},
 		"viewsContainers": {
 			"activitybar": [
 				{
 					"id": "parsnips",
 					"title": "Parsnips",
-					"icon": "parsnips.svg"
+					"icon": "./assets/parsnips.svg"
 				}
 			]
 		},
 		"views": {
 			"parsnips": [
 				{
-					"id": "definitions",
-					"name": "Function Definitions"
-				},
-				{
-					"id": "params",
-					"name": "Param Types"
-				},
-				{
-					"id": "state",
-					"name": "Connected State"
+					"id": "inspect",
+					"name": "Function Inspection",
+					"description": "Show function definitions and param types"
 				},
 				{
 					"id": "css",
@@ -53,6 +54,30 @@
 				"command": "extension.helloWorld",
 				"title": "Hello World"
 			}
+		],
+		"menus": {
+			"editor/context": [
+				{
+					"when": "resourceLangId == javascript",
+					"command": "extension.helloWorld",
+					"alt": "extension.helloWorld",
+					"group": "navigation"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "inspect",
+				"contents": "You have not selected a function or component."
+			},
+			{
+				"view": "css",
+				"contents": "Either your component does not have CSS attached to it or you have not selected a function or component."
+			},
+			{
+				"view": "references",
+				"contents": "Either your component or function does not have references or you have not selected a function or component."
+			}
 		]
 	},
 	"scripts": {
@@ -61,20 +86,17 @@
 		"test": "node ./test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.0",
-		"@types/node": "^14.0.23",
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^12.11.7",
 		"@types/vscode": "^1.47.0",
-		"eslint": "^7.5.0",
+		"eslint": "^6.8.0",
 		"glob": "^7.1.6",
-		"mocha": "^8.0.1",
-		"typescript": "^3.9.7",
-		"vscode-test": "^1.4.0"
+		"mocha": "^7.0.1",
+		"typescript": "^3.7.5",
+		"vscode-test": "^1.3.0"
 	},
 	"dependencies": {
-		"acorn": "^7.3.1",
-		"acorn-loose": "^7.1.0",
-		"file-system": "^2.2.2",
-		"vscode-languageclient": "^6.1.3"
+		"prettier": "^2.0.5"
 	}
 }
